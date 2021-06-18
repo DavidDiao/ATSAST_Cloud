@@ -31,7 +31,7 @@ $domain = array(
             'MYSQL_CHARSET' => 'utf8',
         ),
     ),
-    "dbg.disk.winter.mundb.xyz" => array( // 调试配置
+    "1.15.222.218" => array( // 调试配置
         'debug' => 1,
         'maintain' => 0,
         'mysql' => array(
