@@ -179,10 +179,11 @@
     if (!File.prototype.slice) File.prototype.slice = File.prototype.mozSlice || File.prototype.webkitSlice;
 
     function FileSHA1(fileobj, callback) {
+        // TODO: refactor
         var len = fileobj.size;
         var off = 0;
         var hash = sha1.create();
-        hash.update(len + "\0");
+        // hash.update(len + "\0");
         var reader = new FileReader();
         function next() {
             var end = off + 1048576;
@@ -200,6 +201,17 @@
             callback(null);
         }
         next();
+    }
+
+    var encryptKey;
+    function FileEncrypter(blob, callback) {
+        // TODO
+        callback(blob);
+    }
+
+    function FileDecrypter(blob, callback) {
+        // TODO
+        callback(blob);
     }
 
     // Uploader
@@ -244,49 +256,51 @@
         }
         // start uploading
         this.start = function() {
-            FileSHA1(file, function(hash) {
-                this.hash = hash;
-                $.post("/cloud/fileExists", {hash: hash}, function(data) {
-                    data = JSON.parse(data);
-                    if (data.data) {
-                        $.post("/cloud/hashupload", {hash: hash, path: path}, function(data) {
-                            data = JSON.parse(data);
-                            if (data.ret == 200) successed(true, data.data);
-                            else failed(data.desc);
-                        }).fail(reqFail);
-                    } else {
-                        if (ready) setTimeout(function() {
-                            ready(hash);
-                        }, 0);
-                        var form = new FormData();
-                        form.append("path", path);
-                        form.append("file", file);
-                        $.ajax({
-                            type: "POST",
-                            url: "/cloud/upload",
-                            enctype: "application/x-www-form-urlencoded",
-                            contentType: false,
-                            data: form,
-                            processData: false,
-                            xhr: function() {
-                                var xhr = $.ajaxSettings.xhr();
-                                xhr.upload.onprogress = function(ev) {
-                                    if (progress) progress(ev);
-                                };
-                                return xhr;
-                            },
-                            success: function(data) {
+            FileEncrypter(file, blob => {
+                FileSHA1(blob, function(hash) {
+                    this.hash = hash;
+                    $.post("/cloud/fileExists", {hash: hash}, function(data) {
+                        data = JSON.parse(data);
+                        if (data.data) {
+                            $.post("/cloud/hashupload", {hash: hash, path: path}, function(data) {
                                 data = JSON.parse(data);
-                                if (data.ret == 200) {
-                                    successed(false, data.data);
-                                } else {
-                                    failed(data.desc)
-                                }
-                            },
-                            error: reqFail
-                        });
-                    }
-                }).fail(reqFail);
+                                if (data.ret == 200) successed(true, data.data);
+                                else failed(data.desc);
+                            }).fail(reqFail);
+                        } else {
+                            if (ready) setTimeout(function() {
+                                ready(hash);
+                            }, 0);
+                            var form = new FormData();
+                            form.append("path", path);
+                            form.append("file", blob);
+                            $.ajax({
+                                type: "POST",
+                                url: "/cloud/upload",
+                                enctype: "application/x-www-form-urlencoded",
+                                contentType: false,
+                                data: form,
+                                processData: false,
+                                xhr: function() {
+                                    var xhr = $.ajaxSettings.xhr();
+                                    xhr.upload.onprogress = function(ev) {
+                                        if (progress) progress(ev);
+                                    };
+                                    return xhr;
+                                },
+                                success: function(data) {
+                                    data = JSON.parse(data);
+                                    if (data.ret == 200) {
+                                        successed(false, data.data);
+                                    } else {
+                                        failed(data.desc)
+                                    }
+                                },
+                                error: reqFail
+                            });
+                        }
+                    }).fail(reqFail);
+                });
             });
             return this;
         }
@@ -311,7 +325,22 @@
             icon: 'download',
             desc: '下载',
             action: function(ev) {
-                window.open('download?path=' + encodeURI(getPath(ev)));
+                // window.open('download?path=' + encodeURI(getPath(ev)));
+                $.ajax({
+                    type: 'GET',
+                    url: 'download?path=' + encodeURI(getPath(ev)),
+                    contentType: "application/octet-stream",
+                    xhrFields: {responseType: 'blob'},
+                    success: data => {
+                        FileDecrypter(data, blob => {
+                            var lnk = document.createElement('a');
+                            lnk.href = URL.createObjectURL(blob);
+                            lnk.setAttribute('download', getName(ev));
+                            lnk.click();
+                        });
+                    },
+                    error: networkErr,
+                });
             }
         },
         preview: {
@@ -608,7 +637,7 @@
                 btn.addEventListener("click", operations[op].action);
                 btn.path = f.fid || (f.path || currentPath) + f.filename + (f.is_dir != 0 ? '/' : '');
                 btn.innerHTML = `<i class="MDI ${operations[op].icon}"></i> ${operations[op].desc}`;
-                if (op == 'preview') btn.disabled = supportedExts.indexOf(f.filename.substr(f.filename.lastIndexOf('.'))) == -1;
+                if (op == 'preview') btn.disabled = true; // supportedExts.indexOf(f.filename.substr(f.filename.lastIndexOf('.'))) == -1;
                 if (op == 'share') btn.disabled = true; // awsl
                 cell.appendChild(btn);
             }
@@ -997,5 +1026,13 @@
         } else {
             onhashchange();
         }
+        $.post("getKey", {}, function(data) {
+            data = JSON.parse(data);
+            if (data.ret == 200) {
+                encryptKey = data.data;
+            } else {
+                alert(data.desc);
+            }
+        }).fail(() => alert('加载用户密钥失败，请刷新页面重试'));
     };
 </script>

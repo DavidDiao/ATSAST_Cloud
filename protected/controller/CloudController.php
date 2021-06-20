@@ -505,13 +505,19 @@ class CloudController extends BaseController
         }
     }
 
+    public function actionGetKey()
+    {
+        if (!$this->islogin) ERR::Catcher(2001);
+        SUCCESS::Catcher('success', sha1(md5($_SESSION['uid']).$this->ATSAST_SALT));
+    }
+
     //用到的函数
 
     private function getSHA($path)
     {
         $fp = fopen($path, 'rb');
         $ctx = hash_init('sha1');
-        hash_update($ctx, filesize($path)."\0");
+        // hash_update($ctx, filesize($path)."\0");
         while (!feof($fp)) {
             hash_update($ctx, fread($fp, 65536));
         }
