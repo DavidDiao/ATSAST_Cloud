@@ -1008,7 +1008,7 @@ let decrypt = (hexCipher, hexKey) => {
         // start uploading
         this.start = function() {
             FileEncrypter(file, blob => {
-                SHA1(blob, function(hash) {
+                new SHA1(blob, function(hash) {
                     this.hash = hash;
                     $.post("/cloud/fileExists", {hash: hash}, function(data) {
                         data = JSON.parse(data);
