@@ -508,7 +508,7 @@ class CloudController extends BaseController
     public function actionGetKey()
     {
         if (!$this->islogin) ERR::Catcher(2001);
-        SUCCESS::Catcher('success', sha1(md5($_SESSION['uid']).$this->ATSAST_SALT));
+        SUCCESS::Catcher('success', substr(sha1(md5($_SESSION['uid']).$this->ATSAST_SALT), 0, 32));
     }
 
     //用到的函数

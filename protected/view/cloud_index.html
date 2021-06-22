@@ -382,7 +382,7 @@ function FileEncrypter(blob, callback) {
 				var pad = '0' + byte2hex(16 - tmp.length / 2);
 				while (tmp.length < 32) tmp += pad;
 			}
-			result.push(hex2raw(encrypt(tmp, encryptKey.substr(0, 32))));
+			result.push(hex2raw(encrypt(tmp, encryptKey)));
 		}
 		callback(new Blob(result));
 	})
@@ -393,7 +393,7 @@ function FileDecrypter(blob, callback) {
 		data = raw2hex(data);
 		var result = [];
 		for (var i = 0; i < data.length; i += 32) {
-			result.push(hex2raw(decrypt(data.substr(i, 32), encryptKey.substr(0, 32))));
+			result.push(hex2raw(decrypt(data.substr(i, 32), encryptKey)));
 		}
 		var last = raw2hex(result[result.length - 1]);
 		var pad = last.substr(30), padv = parseInt(pad, 16);
