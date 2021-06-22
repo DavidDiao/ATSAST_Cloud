@@ -173,35 +173,180 @@
         </div>
     </div>
 </div>
-<script src="<{$ATSAST_CDN}>/js/sha1.min.js"></script>
 <script>
-    // filesha1.js // maybe
-    if (!File.prototype.slice) File.prototype.slice = File.prototype.mozSlice || File.prototype.webkitSlice;
-
-    function FileSHA1(fileobj, callback) {
-        // TODO: refactor
-        var len = fileobj.size;
-        var off = 0;
-        var hash = sha1.create();
-        // hash.update(len + "\0");
-        var reader = new FileReader();
-        function next() {
-            var end = off + 1048576;
-            if (end > len) end = len;
-            reader.readAsArrayBuffer(fileobj.slice(off, end));
-        }
-        reader.onload = function(e) {
-            off += e.target.result.byteLength;
-            hash.update(e.target.result);
-            if (len > off) next();
-            else callback(hash.hex());
-        }
-        reader.onerror = function(e) {
-            console.warn("Error occured!");
-            callback(null);
-        }
-        next();
+    function word2hex(word) {
+        let tmp = new Uint8Array(8);
+        for (let i = 0; i < 8; ++i) tmp[i] = byte2hex((word >> (28 - (i << 2))) & 15);
+        return new TextDecoder().decode(tmp);
     }
+
+    // must use new SHA1(blob, callback)
+    const SHIFT = [24, 16, 8, 0];
+    function SHA1(blob, callback) {
+        this.blocks = new Array(16);
+        this.a = 0x67452301;
+        this.b = 0xEFCDAB89;
+        this.c = 0x98BADCFE;
+        this.d = 0x10325476;
+        this.e = 0xC3D2E1F0;
+        blob.arrayBuffer().then(buffer => {
+            var data = new Uint8Array(buffer);
+            var index = 0, i, blocks = this.blocks, length = data.length;
+            while (index < length) {
+                this.clear();
+                for (i = 0; index < length && i < 64; ++index, ++i) {
+                    blocks[i >> 2] |= data[index] << SHIFT[i & 3];
+                }
+                if (i == 64) this.hash();
+            }
+            i &= 63;
+            blocks[i >> 2] = 1 << (31 - ((i & 3) << 3));
+            if (i >= 56) {
+                this.hash();
+                this.clear();
+            }
+            blocks[14] = length / 536870912 << 0;
+            blocks[15] = length % 536870912 << 3;
+            this.hash();
+            callback(word2hex(this.a)
+                + word2hex(this.b)
+                + word2hex(this.c)
+                + word2hex(this.d)
+                + word2hex(this.e));
+        });
+    }
+
+    SHA1.prototype.clear = function () {
+        var blocks = this.blocks;
+        blocks[0] = blocks[1] = blocks[2] = blocks[3] =
+            blocks[4] = blocks[5] = blocks[6] = blocks[7] =
+            blocks[8] = blocks[9] = blocks[10] = blocks[11] =
+            blocks[12] = blocks[13] = blocks[14] = blocks[15] = 0;
+    };
+
+    SHA1.prototype.hash = function () {
+        var a = this.a, b = this.b, c = this.c, d = this.d, e = this.e;
+        var f, j, t, blocks = this.blocks;
+
+        for (j = 16; j < 80; ++j) {
+            t = blocks[j - 3] ^ blocks[j - 8] ^ blocks[j - 14] ^ blocks[j - 16];
+            blocks[j] = (t << 1) | (t >>> 31);
+        }
+
+        for (j = 0; j < 20; j += 5) {
+            f = (b & c) | ((~b) & d);
+            t = (a << 5) | (a >>> 27);
+            e = t + f + e + 0x5A827999 + blocks[j] << 0;
+            b = (b << 30) | (b >>> 2);
+
+            f = (a & b) | ((~a) & c);
+            t = (e << 5) | (e >>> 27);
+            d = t + f + d + 0x5A827999 + blocks[j + 1] << 0;
+            a = (a << 30) | (a >>> 2);
+
+            f = (e & a) | ((~e) & b);
+            t = (d << 5) | (d >>> 27);
+            c = t + f + c + 0x5A827999 + blocks[j + 2] << 0;
+            e = (e << 30) | (e >>> 2);
+
+            f = (d & e) | ((~d) & a);
+            t = (c << 5) | (c >>> 27);
+            b = t + f + b + 0x5A827999 + blocks[j + 3] << 0;
+            d = (d << 30) | (d >>> 2);
+
+            f = (c & d) | ((~c) & e);
+            t = (b << 5) | (b >>> 27);
+            a = t + f + a + 0x5A827999 + blocks[j + 4] << 0;
+            c = (c << 30) | (c >>> 2);
+        }
+
+        for (; j < 40; j += 5) {
+            f = b ^ c ^ d;
+            t = (a << 5) | (a >>> 27);
+            e = t + f + e + 0x6ED9EBA1 + blocks[j] << 0;
+            b = (b << 30) | (b >>> 2);
+
+            f = a ^ b ^ c;
+            t = (e << 5) | (e >>> 27);
+            d = t + f + d + 0x6ED9EBA1 + blocks[j + 1] << 0;
+            a = (a << 30) | (a >>> 2);
+
+            f = e ^ a ^ b;
+            t = (d << 5) | (d >>> 27);
+            c = t + f + c + 0x6ED9EBA1 + blocks[j + 2] << 0;
+            e = (e << 30) | (e >>> 2);
+
+            f = d ^ e ^ a;
+            t = (c << 5) | (c >>> 27);
+            b = t + f + b + 0x6ED9EBA1 + blocks[j + 3] << 0;
+            d = (d << 30) | (d >>> 2);
+
+            f = c ^ d ^ e;
+            t = (b << 5) | (b >>> 27);
+            a = t + f + a + 0x6ED9EBA1 + blocks[j + 4] << 0;
+            c = (c << 30) | (c >>> 2);
+        }
+
+        for (; j < 60; j += 5) {
+            f = (b & c) | (b & d) | (c & d);
+            t = (a << 5) | (a >>> 27);
+            e = t + f + e + 0x8F1BBCDC + blocks[j] << 0;
+            b = (b << 30) | (b >>> 2);
+
+            f = (a & b) | (a & c) | (b & c);
+            t = (e << 5) | (e >>> 27);
+            d = t + f + d + 0x8F1BBCDC + blocks[j + 1] << 0;
+            a = (a << 30) | (a >>> 2);
+
+            f = (e & a) | (e & b) | (a & b);
+            t = (d << 5) | (d >>> 27);
+            c = t + f + c + 0x8F1BBCDC + blocks[j + 2] << 0;
+            e = (e << 30) | (e >>> 2);
+
+            f = (d & e) | (d & a) | (e & a);
+            t = (c << 5) | (c >>> 27);
+            b = t + f + b + 0x8F1BBCDC + blocks[j + 3] << 0;
+            d = (d << 30) | (d >>> 2);
+
+            f = (c & d) | (c & e) | (d & e);
+            t = (b << 5) | (b >>> 27);
+            a = t + f + a + 0x8F1BBCDC + blocks[j + 4] << 0;
+            c = (c << 30) | (c >>> 2);
+        }
+
+        for (; j < 80; j += 5) {
+            f = b ^ c ^ d;
+            t = (a << 5) | (a >>> 27);
+            e = t + f + e + 0xCA62C1D6 + blocks[j] << 0;
+            b = (b << 30) | (b >>> 2);
+
+            f = a ^ b ^ c;
+            t = (e << 5) | (e >>> 27);
+            d = t + f + d + 0xCA62C1D6 + blocks[j + 1] << 0;
+            a = (a << 30) | (a >>> 2);
+
+            f = e ^ a ^ b;
+            t = (d << 5) | (d >>> 27);
+            c = t + f + c + 0xCA62C1D6 + blocks[j + 2] << 0;
+            e = (e << 30) | (e >>> 2);
+
+            f = d ^ e ^ a;
+            t = (c << 5) | (c >>> 27);
+            b = t + f + b + 0xCA62C1D6 + blocks[j + 3] << 0;
+            d = (d << 30) | (d >>> 2);
+
+            f = c ^ d ^ e;
+            t = (b << 5) | (b >>> 27);
+            a = t + f + a + 0xCA62C1D6 + blocks[j + 4] << 0;
+            c = (c << 30) | (c >>> 2);
+        }
+
+        this.a = this.a + a << 0;
+        this.b = this.b + b << 0;
+        this.c = this.c + c << 0;
+        this.d = this.d + d << 0;
+        this.e = this.e + e << 0;
+    };
 
 function byte2hex(v) { return (v < 10 ? 48 : 87) + v; }
 
@@ -863,7 +1008,7 @@ let decrypt = (hexCipher, hexKey) => {
         // start uploading
         this.start = function() {
             FileEncrypter(file, blob => {
-                FileSHA1(blob, function(hash) {
+                SHA1(blob, function(hash) {
                     this.hash = hash;
                     $.post("/cloud/fileExists", {hash: hash}, function(data) {
                         data = JSON.parse(data);
