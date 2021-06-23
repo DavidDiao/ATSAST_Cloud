@@ -872,8 +872,8 @@ let encrypt = (hexText, hexKey) => {
   }
   // 获取扩展密钥数组
   let extendedKeys = key_extended(hexKey);
-  // console.log("扩展密钥")
-  // console.log(extendedKeys)
+  console.info("扩展密钥")
+  console.info(extendedKeys)
   // 明文和第一组密钥 0,1,2,3 异或
   let tempText = xor_hex_fill(hexText.substr(0, 8), extendedKeys[0])
                     + xor_hex_fill(hexText.substr(8, 8), extendedKeys[1])
@@ -881,33 +881,33 @@ let encrypt = (hexText, hexKey) => {
                     + xor_hex_fill(hexText.substr(24, 8), extendedKeys[3]);
   // 中间9轮加密
   for (let i = 0; i < 9; i++) {
-    // console.log("第" + (i + 1) + '轮：')
+    console.info("第" + (i + 1) + '轮：')
     let subTemp = hex_sub_bytes(tempText);
-    // console.log('s盒替换 :' + subTemp);
+    console.info('s盒替换 :' + subTemp);
     let shiftTemp = shift_rows(subTemp);
-    // console.log('左移    :' + shiftTemp)
+    console.info('左移    :' + shiftTemp)
     let mixTemp = mix_columns(shiftTemp);
     mixTemp = array_to_str(mixTemp);
-    // console.log('混淆    :' + mixTemp)
+    console.info('混淆    :' + mixTemp)
     tempText = xor_hex_fill(mixTemp.substr(0, 8), extendedKeys[i * 4 + 4])
       + xor_hex_fill(mixTemp.substr(8, 8), extendedKeys[i * 4 + 5])
       + xor_hex_fill(mixTemp.substr(16, 8), extendedKeys[i * 4 + 6])
       + xor_hex_fill(mixTemp.substr(24, 8), extendedKeys[i * 4 + 7])
-    // console.log('轮密钥加:' + tempText)
+    console.info('轮密钥加:' + tempText)
   }
   // 第十轮
-  // console.log('第10轮：')
+  console.info('第10轮：')
   // s盒替换
   tempText = hex_sub_bytes(tempText);
-  // console.log('s盒替换 :' + tempText);
+  console.info('s盒替换 :' + tempText);
   // 行移位
   tempText = shift_rows(tempText);
-  // console.log('左移    :' + tempText);
+  console.info('左移    :' + tempText);
   let cipher = xor_hex_fill(tempText.substr(0, 8), extendedKeys[40])
     + xor_hex_fill(tempText.substr(8, 8), extendedKeys[41])
     + xor_hex_fill(tempText.substr(16, 8), extendedKeys[42])
     + xor_hex_fill(tempText.substr(24, 8), extendedKeys[43])
-  // console.log("密文输出: " + cipher);
+  console.info("密文输出: " + cipher);
   return cipher;
 }
 
@@ -931,26 +931,26 @@ let decrypt = (hexCipher, hexKey) => {
     + xor_hex_fill(hexCipher.substr(8, 8), extendedKeys[41])
     + xor_hex_fill(hexCipher.substr(16, 8), extendedKeys[42])
     + xor_hex_fill(hexCipher.substr(24, 8), extendedKeys[43]);
-  // console.log("w[40-43]:" + tempText);
+  console.info("w[40-43]:" + tempText);
   // 中间9轮加密
   for (let i = 0; i < 9; i++) {
-    // console.log("第" + (i + 1) + '轮：')
+    console.info("第" + (i + 1) + '轮：')
     // 逆行移位
     let shiftTemp = shift_rows(tempText, true);
-    // console.log('逆行运算  :' + shiftTemp)
+    console.info('逆行运算  :' + shiftTemp)
     let subTemp = hex_sub_bytes(shiftTemp, true);
-    // console.log("逆s盒替换 :" + subTemp)
+    console.info("逆s盒替换 :" + subTemp)
     tempText = xor_hex_fill(subTemp.substr(0, 8), extendedKeys[36 - i * 4])
       + xor_hex_fill(subTemp.substr(8, 8), extendedKeys[36 - i * 4 + 1])
       + xor_hex_fill(subTemp.substr(16, 8), extendedKeys[36 - i * 4 + 2])
       + xor_hex_fill(subTemp.substr(24, 8), extendedKeys[36 - i * 4 + 3])
-    // console.log("轮密钥加 :" + tempText)
+    console.info("轮密钥加 :" + tempText)
     let mixTemp = mix_columns(tempText, true);
     tempText = array_to_str(mixTemp);
-    // console.log("逆列混淆 :" + tempText)
+    console.info("逆列混淆 :" + tempText)
   }
   // 第十轮
-  // console.log('第十轮：')
+  console.info('第十轮：')
   // 逆行移位
   tempText = shift_rows(tempText, true);
   // 逆s盒替换
@@ -959,7 +959,7 @@ let decrypt = (hexCipher, hexKey) => {
     + xor_hex_fill(tempText.substr(8, 8), extendedKeys[1])
     + xor_hex_fill(tempText.substr(16, 8), extendedKeys[2])
     + xor_hex_fill(tempText.substr(24, 8), extendedKeys[3])
-  // console.log("明文输出: " + cipher);
+  console.info("明文输出: " + cipher);
   return cipher;
 }
 
