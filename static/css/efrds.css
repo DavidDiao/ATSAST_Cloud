@@ -126,7 +126,7 @@ nav.navbar{
     margin-bottom:0;
 }
 
-.navbar-dark .form-control.atsast-searchBox{
+.navbar-dark .form-control.efrds-searchBox{
     background: rgba(255,255,255,0.1);
     border: none;
     line-height: 1.2;
@@ -135,36 +135,36 @@ nav.navbar{
     border-radius: 2px;
 }
 
-.navbar-dark .form-control.atsast-searchBox:focus{
+.navbar-dark .form-control.efrds-searchBox:focus{
     background: rgba(255,255,255,0.2);
 }
 
-/* ATSAST Styles */
+/* efrds Styles */
 
-a.attsast-course{
+a.efrds-course{
     text-decoration: none;
     color:#212529;
 }
 
-.attsast-course > div{
+.efrds-course > div{
     transition:.2s ease-out .0s;
     opacity:0.8;
 }
 
-.attsast-course i{
+.efrds-course i{
     font-size:6rem;
     line-height:1;
 }
-.attsast-course h5{
+.efrds-course h5{
     margin-top: 1rem;
 }
-.attsast-course > div:hover{
+.efrds-course > div:hover{
     box-shadow: 0 8px 17px 2px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12), 0 5px 5px -3px rgba(0,0,0,0.2);
     opacity:1;
     transform:scale(1.01);
 }
 
-hr.atsast-line{
+hr.efrds-line{
     height:1px;
     background:#757575;
     width:100%;
