@@ -1,22 +1,22 @@
-# ATSAST_Cloud
+# EFRDS_Cloud
 
-Netdisk for ATSAST
+Netdisk for EFRDS
 
 ## NOTICE
 
 For better reference, all materials below would be written in Chinese.
 
-# ATSAST网盘系统
+# EFRDS网盘系统
 
-这是ATSAST网盘系统的独立源代码，为ATSAST源代码的一部分，本系统代码将会被整合于ATSAST，但将作为单独部分开源并可独立使用。
+这是EFRDS网盘系统，原为可独立使用的ATSAST源代码的一部分，现在为了摸实验做了些改动（看下面功能最后两行），想拿来当网盘用的可以回滚。
 
 forked from ZsgsDesign/ATSAST_Cloud, 但是虽然明明这个人完全没写东西却在别人名下感觉我像是白打工所以没有用fork而是自己传了一份
 
-现在为了摸实验做了些改动（看下面功能最后两行），想拿来当网盘用的可以回滚
-
 ## 安装
 
-新建数据库，并导入项目根目录下的sastdisk.sql（默认用户空间1G，要改在这个文件里改）
+先安装http服务器（apache，IIS，nginx之类的）、php、mysql以及必须的插件
+
+新建数据库（默认`efrdsdisk`，可在下面的配置中修改，并导入项目根目录下的efrdsdisk.sql（默认用户空间1G，要改在这个文件里改）
 
 新建/protected/model/CONFIG.php，插入内容如下
 
@@ -28,15 +28,15 @@ class CONFIG {
 	public static function GET($KEY)
 	{
 		$config=array(
-			"ATSAST_MYSQL_HOST"=>"localhost",
-			"ATSAST_MYSQL_PORT"=>"3306",
-			"ATSAST_MYSQL_USER"=>"root",
-			"ATSAST_MYSQL_DATABASE"=>"sastdisk",
-			"ATSAST_MYSQL_PASSWORD"=>"root",
+			"EFRDS_MYSQL_HOST"=>"localhost",
+			"EFRDS_MYSQL_PORT"=>"3306",
+			"EFRDS_MYSQL_USER"=>"root",
+			"EFRDS_MYSQL_DATABASE"=>"efrdsdisk",
+			"EFRDS_MYSQL_PASSWORD"=>"root",
 
-			"ATSAST_CDN"=>"/static", // 或者 https://cdn.xxx.com 之类的，末尾不带/
-			"ATSAST_SALT"=>"@SAST+1s",
-			"ATSAST_DOMAIN"=>"",
+			"EFRDS_CDN"=>"/static", // 或者 https://cdn.xxx.com 之类的，末尾不带/
+			"EFRDS_SALT"=>"@EFRDS+1s",
+			"EFRDS_DOMAIN"=>"",
 
 			"CLOUD_FILE_DIRECTORY"=>"/home/cloud_objs"
 		);
@@ -46,6 +46,8 @@ class CONFIG {
 
 }
 ```
+
+修改/protected/config.php中的域名信息
 
 ## 部署地址
 
@@ -82,6 +84,6 @@ https://1.15.222.218
 
 ## 其他注意事项
 
-因项目为ATSAST源码一部分，项目协议转为AGPL。
+因原项目为ATSAST源码一部分，项目协议转为AGPL。
 
 虽然我想换wtfpl，又想了想也不全是我写的我也不能乱改，那就放着不管吧

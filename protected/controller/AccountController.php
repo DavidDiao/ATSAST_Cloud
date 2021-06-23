@@ -11,7 +11,7 @@ class AccountController extends BaseController
     {
         $this->current=0;
         if ($this->islogin) {
-            $this->jump("{$this->ATSAST_DOMAIN}/");
+            $this->jump("{$this->EFRDS_DOMAIN}/");
         } else {
             $this->title="登录 / 注册";
         }
@@ -36,13 +36,13 @@ class AccountController extends BaseController
                 return self::account_err_report("用户名已被使用");
             }
 
-            $OPENID=sha1(strtolower($name).$this->ATSAST_SALT.md5($password));
+            $OPENID=sha1(strtolower($name).$this->EFRDS_SALT.md5($password));
             $uid=$db->create([
                 'name'=>$name,
                 'OPENID'=>$OPENID,
             ]);
             $_SESSION['OPENID']=$OPENID;
-            $this->jump("{$this->ATSAST_DOMAIN}/");
+            $this->jump("{$this->EFRDS_DOMAIN}/");
 
         } elseif ($action==="login") { //如果是登录
 
@@ -53,14 +53,14 @@ class AccountController extends BaseController
                 return self::account_err_report("请不要皮这个系统", 0);
             }
 
-            $OPENID=sha1(strtolower($name).$this->ATSAST_SALT.md5($password));
+            $OPENID=sha1(strtolower($name).$this->EFRDS_SALT.md5($password));
             $db=new Model("users");
             $result=$db->find(array("OPENID=:OPENID",":OPENID"=>$OPENID));
             if (empty($result)) {
                 return self::account_err_report("用户名或密码错误", 0);
             } else {
                 $_SESSION['OPENID']=$OPENID;
-                $this->jump("{$this->ATSAST_DOMAIN}/");
+                $this->jump("{$this->EFRDS_DOMAIN}/");
             }
         }
     }
@@ -69,6 +69,6 @@ class AccountController extends BaseController
     {
         session_unset();
         session_destroy();
-        $this->jump("{$this->ATSAST_DOMAIN}/");
+        $this->jump("{$this->EFRDS_DOMAIN}/");
     }
 }

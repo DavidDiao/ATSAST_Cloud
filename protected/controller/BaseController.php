@@ -22,9 +22,9 @@ class BaseController extends Controller
         } else {
             $this->userinfo = [];
         }
-        $this->ATSAST_DOMAIN=CONFIG::GET('ATSAST_DOMAIN');
-        $this->ATSAST_CDN=CONFIG::GET('ATSAST_CDN');
-        $this->ATSAST_SALT=CONFIG::GET('ATSAST_SALT');
+        $this->EFRDS_DOMAIN=CONFIG::GET('EFRDS_DOMAIN');
+        $this->EFRDS_CDN=CONFIG::GET('EFRDS_CDN');
+        $this->EFRDS_SALT=CONFIG::GET('EFRDS_SALT');
     }
 
     public function jump($url, $delay = 0)

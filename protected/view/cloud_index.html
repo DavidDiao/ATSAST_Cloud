@@ -1244,21 +1244,21 @@ let decrypt = (hexCipher, hexKey) => {
             buttonPress("shareBtn", false);
             $(".nf").attr("disabled", "");
             $("#files").addClass("d-none");
-            document.title = "回收站 - SAST Cloud";
+            document.title = "回收站 - EFRDS Cloud";
         } else if (location.hash == "#share") {
             buttonPress("shareBtn", true);
             buttonPress("trashBtn", false);
             $(".nf").attr("disabled", "");
             $("#files").addClass("d-none");
-            document.title = "分享 - SAST Cloud";
+            document.title = "分享 - EFRDS Cloud";
         } else if (location.hash.startsWith("#?")) {
-            document.title = "搜索 - SAST Cloud";
+            document.title = "搜索 - EFRDS Cloud";
         } else {
             buttonPress("trashBtn", false);
             buttonPress("shareBtn", false);
             $(".nf").attr("disabled", false);
             $("#files").removeClass("d-none");
-            document.title = location.hash.substr(1) + " - SAST Cloud";
+            document.title = location.hash.substr(1) + " - EFRDS Cloud";
         }
         setNavbar(location.hash.substr(1));
         loadFileList(location.hash.substr(1));

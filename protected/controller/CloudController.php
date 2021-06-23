@@ -3,7 +3,7 @@ class CloudController extends BaseController
 {
     public function actionIndex()
     {
-        $this->title='SAST Cloud';
+        $this->title='EFRDS Cloud';
     }
 
     public function actionFileExists()
@@ -32,7 +32,8 @@ class CloudController extends BaseController
         if(!self::is_path_existed(arg('path'))) ERR::Catcher(6002);
         $path=arg('path');
         $db=new Model("disk_file");
-        SUCCESS::Catcher('success',$db->query('select filename,time,filesize,is_dir from disk_file where uid=:uid and path=:path and deleted=0',array(':uid'=>$_SESSION['uid'],':path'=>$path)));
+        SUCCESS::Catcher('success',$db->query('select filename,time,filesize,is_dir from disk_file where uid=:uid and path=:path and deleted=0',
+            array(':uid'=>$_SESSION['uid'],':path'=>$path)));
     }
 
     public function actionShowdir()
@@ -43,7 +44,8 @@ class CloudController extends BaseController
         if(!self::is_path_existed(arg('path'))) ERR::Catcher(6002);
         $path=arg('path');
         $db=new Model("disk_file");
-        SUCCESS::Catcher('success',$db->query('select filename from disk_file where uid=:uid and path=:path and deleted=0 and is_dir=1',array(':uid'=>$_SESSION['uid'],':path'=>$path)));
+        SUCCESS::Catcher('success',$db->query('select filename from disk_file where uid=:uid and path=:path and deleted=0 and is_dir=1',
+            array(':uid'=>$_SESSION['uid'],':path'=>$path)));
     }
 
     //回收站
@@ -51,7 +53,8 @@ class CloudController extends BaseController
     {
         if (!$this->islogin) ERR::Catcher(2001);
         $db=new Model("disk_file");
-        SUCCESS::Catcher('success',$db->query('select filename,time,filesize,is_dir,path,fid from disk_file where uid=:uid and deleted=-1',array(':uid'=>$_SESSION['uid'])));
+        SUCCESS::Catcher('success',$db->query('select filename,time,filesize,is_dir,path,fid from disk_file where uid=:uid and deleted=-1',
+            array(':uid'=>$_SESSION['uid'])));
     }
 
     //删除文件及文件夹
@@ -428,7 +431,8 @@ class CloudController extends BaseController
         if (!$this->islogin) ERR::Catcher(2001);
         if (!arg('keyword')) ERR::Catcher(1003);
         $db=new Model("disk_file");
-        SUCCESS::Catcher('success',$db->query('select filename,time,filesize,is_dir,path from disk_file where uid=:uid and filename like :filename and deleted=0',array(':uid'=>$_SESSION['uid'],':filename'=>'%'.arg('keyword').'%')));
+        SUCCESS::Catcher('success',$db->query('select filename,time,filesize,is_dir,path from disk_file where uid=:uid and filename like :filename and deleted=0',
+            array(':uid'=>$_SESSION['uid'],':filename'=>'%'.arg('keyword').'%')));
     }
 
     public function actionViewShare() //查看分享
@@ -508,7 +512,7 @@ class CloudController extends BaseController
     public function actionGetKey()
     {
         if (!$this->islogin) ERR::Catcher(2001);
-        SUCCESS::Catcher('success', substr(sha1(md5($_SESSION['uid']).$this->ATSAST_SALT), 0, 32));
+        SUCCESS::Catcher('success', substr(sha1(md5($_SESSION['uid']).$this->EFRDS_SALT), 0, 32));
     }
 
     //用到的函数
