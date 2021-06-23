@@ -379,7 +379,7 @@ function FileEncrypter(blob, callback) {
 		for (var i = 0; i < data.length; i += 32) {
 			var tmp = data.substr(i, 32);
 			if (tmp.length < 32) {
-				var pad = '0' + byte2hex(16 - tmp.length / 2);
+				var pad = '0' + String.fromCharCode(byte2hex(16 - tmp.length / 2));
 				while (tmp.length < 32) tmp += pad;
 			}
 			result.push(hex2raw(encrypt(tmp, encryptKey)));
