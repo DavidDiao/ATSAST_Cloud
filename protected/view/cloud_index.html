@@ -200,7 +200,7 @@
                 if (i == 64) this.hash();
             }
             i &= 63;
-            blocks[i >> 2] = 1 << (31 - ((i & 3) << 3));
+            blocks[i >> 2] |= 1 << (31 - ((i & 3) << 3));
             if (i >= 56) {
                 this.hash();
                 this.clear();
