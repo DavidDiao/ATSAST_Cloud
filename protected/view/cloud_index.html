@@ -402,7 +402,7 @@ function FileDecrypter(blob, callback) {
 			for (i = 1; i < padv && haspad; ++i) {
 				if (last.substr(30 - i * 2, 2) != pad) haspad = false;
 			}
-		}
+		} else haspad = false;
 		if (haspad) last = last.substr(0, 32 - padv * 2);
 		result[result.length - 1] = hex2raw(last);
 		callback(new Blob(result));
